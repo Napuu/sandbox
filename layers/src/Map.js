@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { InteractiveMap, Marker, Popup } from 'react-map-gl';
+import ReactMapGL, { Marker, Popup } from 'react-map-gl';
 import Geocoder from "react-map-gl-geocoder";
 import 'react-map-gl-geocoder/dist/mapbox-gl-geocoder.css';
 import RoomIcon from '@mui/icons-material/Room';
@@ -20,7 +20,7 @@ function Map() {
   });
 
   const [basemap, setBaseMap] = useState(basemaps[0].url);
-  const map = useRef();
+  const mapRef = useRef();
   window.onresize = () => {
     setViewport({
       ...viewport,
@@ -69,9 +69,9 @@ function Map() {
       />
     </div>
     <div style={{ position: 'absolute', top: 0, left: 0 }}>
-      <InteractiveMap
+      <ReactMapGL
         {...viewport}
-        ref={map}
+        ref={mapRef}
         mapStyle={basemap}
         onNativeClick={handleOnClick}
         mapboxApiAccessToken={process.env.REACT_APP_MAPBOX_TOKEN}
@@ -123,15 +123,14 @@ function Map() {
           </>
           );
         })}
-        {map.current &&
           <Geocoder
-            mapRef={map}
+            mapRef={mapRef}
             style={{ fontSize: '12px' }}
             onViewportChange={handleGeocoderViewportChange}
             mapboxApiAccessToken={process.env.REACT_APP_MAPBOX_TOKEN}
             position="top-right"
-          />}
-      </InteractiveMap>
+          />
+      </ReactMapGL>
     </div>
   </div>
   );
