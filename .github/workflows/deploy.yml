@@ -1,0 +1,39 @@
+name: Node.js CI
+
+on:
+  push:
+    branches: [ master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+  
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Cache node modules
+      uses: actions/cache@v2
+      env:
+        cache-name: cache-node-modules
+      with:
+        path: |
+          ~/.npm
+          layers/node_modules
+        key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-build-${{ env.cache-name }}-
+          ${{ runner.os }}-build-
+          ${{ runner.os }}-
+          
+    - name: Install Dependencies
+      run: cd layers && npm install
+
+    - name: Build
+      run: cd layers && REACT_APP_MAPBOX_ACCESS_TOKEN=pk.eyJ1IjoicGFsaWtrIiwiYSI6ImNrdnV0cG1mejBxbTYyb2p0OWI4c3FwYzUifQ.rOxZMX2Ozv495OthpRCTpg npm run build
+
+    - name: Deploy
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./layers/build
