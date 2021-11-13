@@ -86,19 +86,19 @@ function Map() {
                 key={marker.id}
                 latitude={marker.latitude}
                 longitude={marker.longitude}
-                style={{zIndex: 100}}
+                style={{ zIndex: 100 }}
                 closeButton={false}
               >
                 <Box display="flex" flexDirection="column">
                   <Box position="absolute" top="5px" right="5px">
-                    <IconButton size="small" onClick={() => {setMarkers(markers.map(m => (m.id === marker.id ? { ...m, popup: false } : m))) }} >
-                      <CloseIcon/>
+                    <IconButton size="small" onClick={() => { setMarkers(markers.map(m => (m.id === marker.id ? { ...m, popup: false } : m))); }} >
+                      <CloseIcon />
                     </IconButton>
                   </Box>
-                  <Box><br/></Box>
+                  <Box><br /></Box>
                   <Typography>
                     {text}
-                    <IconButton size="small" onClick={() => navigator.clipboard.writeText(text) }><ContentCopyIcon fontSize="16px" /></IconButton>
+                    <IconButton size="small" onClick={() => navigator.clipboard.writeText(text)}><ContentCopyIcon fontSize="16px" /></IconButton>
                   </Typography>
                 </Box>
               </Popup>
