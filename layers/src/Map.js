@@ -9,7 +9,7 @@ import Controls from './Controls';
 import { Box, IconButton, Typography } from '@material-ui/core';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import CloseIcon from '@mui/icons-material/Close';
-
+const MAPBOX_TOKEN = process.env.REACT_APP_MAPBOX_TOKEN;
 function Map() {
   const [viewport, setViewport] = useState({
     width: window.innerWidth,
@@ -31,7 +31,7 @@ function Map() {
 
   const handleGeocoderViewportChange = useCallback(
     (newViewport) => {
-      setViewport(v => { return { ...v, ...newViewport }; });
+      setViewport(newViewport);
     },
     []
   );
@@ -62,7 +62,7 @@ function Map() {
       <Controls
         viewport={viewport}
         basemap={basemap}
-        mapboxApiAccessToken={process.env.REACT_APP_MAPBOX_TOKEN}
+        mapboxApiAccessToken={MAPBOX_TOKEN}
         setBasemap={setBaseMap}
         setAddingLocations={setAddingLocations}
         addingLocations={addingLocations}
@@ -74,7 +74,7 @@ function Map() {
         ref={mapRef}
         mapStyle={basemap}
         onNativeClick={handleOnClick}
-        mapboxApiAccessToken={process.env.REACT_APP_MAPBOX_TOKEN}
+        mapboxApiAccessToken={MAPBOX_TOKEN}
         onViewportChange={nextViewport => setViewport(nextViewport)}
       >
         {markers.map(marker => {
@@ -125,9 +125,8 @@ function Map() {
         })}
           <Geocoder
             mapRef={mapRef}
-            style={{ fontSize: '12px' }}
             onViewportChange={handleGeocoderViewportChange}
-            mapboxApiAccessToken={process.env.REACT_APP_MAPBOX_TOKEN}
+            mapboxApiAccessToken={MAPBOX_TOKEN}
             position="top-right"
           />
       </ReactMapGL>
