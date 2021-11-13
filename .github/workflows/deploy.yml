@@ -22,9 +22,9 @@ jobs:
           layers/node_modules
         key: ${{ runner.os }}-build-v2-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
         restore-keys: |
-          ${{ runner.os }}-build-${{ env.cache-name }}-
-          ${{ runner.os }}-build-
-          ${{ runner.os }}-
+          ${{ runner.os }}-build-v2-${{ env.cache-name }}-
+          ${{ runner.os }}-build-v2
+          ${{ runner.os }}-v2
           
     - name: Install Dependencies
       run: cd layers && npm install
