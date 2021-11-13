@@ -1,4 +1,4 @@
-name: Node.js CI
+name: "Build and deploy gh-pages"
 
 on:
   push:
@@ -31,6 +31,9 @@ jobs:
 
     - name: Build
       run: cd layers && REACT_APP_MAPBOX_ACCESS_TOKEN=pk.eyJ1IjoicGFsaWtrIiwiYSI6ImNrdnV0cG1mejBxbTYyb2p0OWI4c3FwYzUifQ.rOxZMX2Ozv495OthpRCTpg npm run build
+
+    - name: Add CNAME
+      run: echo "hiekkalaatikko.kartalla.dev" > build/CNAME
 
     - name: Deploy
       uses: peaceiris/actions-gh-pages@v3
