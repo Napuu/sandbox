@@ -34,12 +34,15 @@ export default function ({ setBasemap, viewport, mapboxApiAccessToken }) {
           ctx.globalAlpha = i;
           let drawableWidth = canvas.width;
           let drawableHeight = canvas.height;
-          if (drawableHeight > drawableWidth) {
+          let x = 0, y = 0;
+          if (img.height > img.width) {
             drawableHeight = drawableWidth / img.width * img.height;
+            y = (canvas.height - drawableHeight) / 2;
           } else {
             drawableWidth = drawableHeight / img.height * img.width;
+            x = (canvas.width - drawableWidth) / 2;
           }
-          ctx.drawImage(img, 0, 0, drawableWidth, drawableHeight);
+          ctx.drawImage(img, x, y, drawableWidth, drawableHeight);
           if (i < 1) {
             requestAnimationFrame(test);
           }
@@ -56,12 +59,12 @@ export default function ({ setBasemap, viewport, mapboxApiAccessToken }) {
   return (
     <Box p={1}>
       <Paper>
-        <Box p={0.5} display="flex" flexDirection="column">
+        <Box pt={0.5} pb={0.5} display="flex" flexDirection="column">
           {basemaps.map((basemap, i) => (
             <Button key={i} onClick={() => {
               setBasemap(basemap.url);
             }}>
-              <canvas ref={basemapCanvasRefs[i]} width={75} height={75} />
+              <canvas style={{"border": "1px solid rgba(0, 0, 0, 0.5)", borderRadius: 5}} ref={basemapCanvasRefs[i]} width={50} height={50} />
             </Button>
           ))}
         </Box>

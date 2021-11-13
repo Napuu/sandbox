@@ -59,7 +59,7 @@ function Map() {
   };
 
   return (<div>
-    <div style={{ position: "absolute", zIndex: 2 }}>
+    <div style={{ position: "absolute", zIndex: 2, bottom: 30 }}>
       <Controls
         viewport={viewport}
         basemap={basemap}
@@ -127,6 +127,7 @@ function Map() {
         {map.current &&
           <Geocoder
             mapRef={map}
+            style={{ fontSize: '12px' }}
             onViewportChange={handleGeocoderViewportChange}
             mapboxApiAccessToken={process.env.REACT_APP_MAPBOX_TOKEN}
             position="top-right"
