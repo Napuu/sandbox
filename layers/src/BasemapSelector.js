@@ -1,7 +1,6 @@
 import { Button, Paper, Box } from '@material-ui/core';
 import { useEffect, useRef, useState } from 'react';
 import { useDebounce } from "./hooks";
-import { motion } from 'framer-motion';
 
 export const basemaps = [
   { title: "Streets", url: "mapbox://styles/mapbox/streets-v11", icon: "streets-v11" },
@@ -55,20 +54,18 @@ export default function ({ setBasemap, viewport, mapboxApiAccessToken }) {
   }, [justLoaded, debouncedViewport, basemapCanvasRefs, mapboxApiAccessToken]);
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: justLoaded > 0 ? 1 : 0 }}>
-      <Box p={1}>
-        <Paper>
-          <Box p={0.5} display="flex" flexDirection="column">
-            {basemaps.map((basemap, i) => (
-              <Button key={i} onClick={() => {
-                setBasemap(basemap.url);
-              }}>
-                <canvas ref={basemapCanvasRefs[i]} width={75} height={75} />
-              </Button>
-            ))}
-          </Box>
-        </Paper>
-      </Box>
-    </motion.div>
+    <Box p={1}>
+      <Paper>
+        <Box p={0.5} display="flex" flexDirection="column">
+          {basemaps.map((basemap, i) => (
+            <Button key={i} onClick={() => {
+              setBasemap(basemap.url);
+            }}>
+              <canvas ref={basemapCanvasRefs[i]} width={75} height={75} />
+            </Button>
+          ))}
+        </Box>
+      </Paper>
+    </Box>
   );
 }
