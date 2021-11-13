@@ -1,57 +1,74 @@
-import { Button } from '@material-ui/core';
-import { useEffect, useState } from 'react';
-import { useDebounce, usePrevious } from "./hooks";
+import { Button, Paper, Box } from '@material-ui/core';
+import { useEffect, useRef, useState } from 'react';
+import { useDebounce } from "./hooks";
+import { motion } from 'framer-motion';
 
 export const basemaps = [
   { title: "Streets", url: "mapbox://styles/mapbox/streets-v11", icon: "streets-v11" },
   { title: "Satellite", url: "mapbox://styles/mapbox/satellite-v9", icon: "satellite-v9" },
 ];
-export default function ({ setBasemap, viewport }) {
+
+// No idea what is going on here.
+// Trying to use named function breaks useRef.
+// eslint-disable-next-line
+export default function ({ setBasemap, viewport, mapboxApiAccessToken }) {
 
   const debouncedViewport = useDebounce(viewport, 1000);
+  const basemapCanvasRefs = basemaps.map(basemap => useRef(null));
 
-  const [basemapUrls, setBasemapUrls] = useState([]);
-  const previousBasemapUrls = usePrevious(basemapUrls);
-  const [loading, setLoading] = useState(false);
-  const [moving, setMoving] = useState(false);
+  const [justLoaded, setJustLoaded] = useState(false);
   useEffect(() => {
-    setMoving(true);
-  }, [viewport]);
-  const [count, setCount] = useState(0);
+    setTimeout(() => setJustLoaded(true), 3000);
+  }, []);
   useEffect(() => {
-    console.log(debouncedViewport);
-    setBasemapUrls(basemaps.map(basemap => {
-      return `https://api.mapbox.com/styles/v1/mapbox/${basemap.icon}/static/${debouncedViewport.longitude},${debouncedViewport.latitude},${debouncedViewport.zoom}/${Math.min(viewport.width, 1280)}x${Math.min(viewport.height, 1280)}?access_token=pk.eyJ1IjoicGFsaWtrIiwiYSI6ImNrNzljb2NnaTBueDIzZm55eXJpcjh0M2gifQ.DvQulSOQQxy2CpDWdytTww`;
+    if (!justLoaded) return;
+
+    const setImage = async (index) => {
+      const img = new Image();
+      const basemap = basemaps[index];
+      img.onload = () => {
+        const canvas = basemapCanvasRefs[index].current;
+        const ctx = canvas.getContext("2d");
+        let i = 0;
+        const test = () => {
+          i += 0.01;
+          ctx.globalAlpha = i;
+          let drawableWidth = canvas.width;
+          let drawableHeight = canvas.height;
+          if (drawableHeight > drawableWidth) {
+            drawableHeight = drawableWidth / img.width * img.height;
+          } else {
+            drawableWidth = drawableHeight / img.height * img.width;
+          }
+          ctx.drawImage(img, 0, 0, drawableWidth, drawableHeight);
+          if (i < 1) {
+            requestAnimationFrame(test);
+          }
+        };
+        requestAnimationFrame(test);
+      };
+      img.src = `https://api.mapbox.com/styles/v1/mapbox/${basemap.icon}/static/${debouncedViewport.longitude},${debouncedViewport.latitude},${debouncedViewport.zoom}/${Math.min(debouncedViewport.width, 1280)}x${Math.min(debouncedViewport.height, 1280)}?access_token=${mapboxApiAccessToken}`;
+    };
+    Promise.all(basemaps.map((_, i) => {
+      return setImage(i);
     }));
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      console.log(count);
-    }, 2000);
-    setMoving(false);
-    // setUrl(`https://api.mapbox.com/styles/v1/mapbox/satellite-v9/static/${debouncedViewport.longitude},${debouncedViewport.latitude},${debouncedViewport.zoom}/${viewport.width}x${viewport.height}?access_token=pk.eyJ1IjoicGFsaWtrIiwiYSI6ImNrNzljb2NnaTBueDIzZm55eXJpcjh0M2gifQ.DvQulSOQQxy2CpDWdytTww`);
-  }, [debouncedViewport]);
+  }, [justLoaded, debouncedViewport, basemapCanvasRefs, mapboxApiAccessToken]);
 
-  useEffect(() => {
-    if (moving) {
-      setCount(count + 1);
-    }
-  }, [moving]);
   return (
-    <div style={{ background: "red" }}>
-      {basemaps.map((basemap, i) => (
-        <Button key={i} onClick={() => {
-          setBasemap(basemap.url);
-        }}>{basemap.title}
-          <img width={50} height={50} style={{
-            objectFit: "cover",
-            objectPosition: "center",
-          }}
-        src={basemapUrls[i]}></img>
-        </Button>
-      ))}
-      <Button>
-      </Button>
-    </div>
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: justLoaded > 0 ? 1 : 0 }}>
+      <Box p={1}>
+        <Paper>
+          <Box p={0.5} display="flex" flexDirection="column">
+            {basemaps.map((basemap, i) => (
+              <Button key={i} onClick={() => {
+                setBasemap(basemap.url);
+              }}>
+                <canvas ref={basemapCanvasRefs[i]} width={75} height={75} />
+              </Button>
+            ))}
+          </Box>
+        </Paper>
+      </Box>
+    </motion.div>
   );
 }
