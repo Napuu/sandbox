@@ -6,8 +6,7 @@ import RoomIcon from '@mui/icons-material/Room';
 import { basemaps } from "./BasemapSelector";
 import { motion } from 'framer-motion';
 import Controls from './Controls';
-import mapboxgl from 'mapbox-gl';
-import { Button, Box, IconButton, Typography } from '@material-ui/core';
+import { Box, IconButton, Typography } from '@material-ui/core';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import CloseIcon from '@mui/icons-material/Close';
 
