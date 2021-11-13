@@ -31,10 +31,9 @@ function Map() {
 
   const handleGeocoderViewportChange = useCallback(
     (newViewport) => {
-      console.log(newViewport);
       setViewport(v => { return { ...v, ...newViewport }; });
     },
-    [setViewport]
+    []
   );
 
   const [markers, setMarkers] = useState([]);
