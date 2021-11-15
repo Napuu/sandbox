@@ -9,6 +9,10 @@ import Controls from './Controls';
 import { Box, IconButton, Typography } from '@material-ui/core';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import CloseIcon from '@mui/icons-material/Close';
+import Ships from "./experiments/Ships";
+import polyline from "@mapbox/polyline";
+import _ from "lodash";
+
 const MAPBOX_TOKEN = process.env.REACT_APP_MAPBOX_TOKEN;
 function Map() {
   const [viewport, setViewport] = useState({
@@ -19,7 +23,7 @@ function Map() {
     zoom: 4.3
   });
 
-  const [basemap, setBaseMap] = useState(basemaps[0].url);
+  const [basemap, setBaseMap] = useState(basemaps[1].url);
   const mapRef = useRef();
   window.onresize = () => {
     setViewport({
@@ -57,6 +61,55 @@ function Map() {
     setMarkers(markers.map(m => (m.id === id ? { ...m, popup: true } : m)));
   };
 
+  useEffect(() => {
+    setData([
+        {
+          waypoints: [
+          {coordinates: [24, 61], timestamp: 1636840097955 },
+          {coordinates: [25,62], timestamp: 1636840097955 },
+          {coordinates: [25, 63], timestamp: 1636840097975 }
+          ]
+        }
+    ]);
+    (async () => {
+      const fetched = await fetch("ships");
+      const lines = (await fetched.text()).split("\n");
+      const d = lines.filter(line => line).map((line) => {
+        const parsed = JSON.parse(line);
+        return {waypoints: 
+          _.zip(polyline.decode(parsed[0]), parsed[1]).map(line => ({
+            coordinates: line[0],
+            timestamp: line[1]
+          })) 
+        };
+      });
+      setData(d);
+      // const json = await fetched.json();
+      // console.log(json);
+      // take five first features from a list
+      // const features = json.features.slice(0, 5);
+
+      /*
+      const newData = {
+        waypoints: json.features.map(feature => ({
+          coordinates: feature.geometry.coordinates,
+          timestamp: feature.properties.timestampExternal
+        }))
+      };
+      */
+      // setData([newData]);
+    })();
+  }, []);
+
+
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    console.log("??", data);
+    console.log("??", JSON.stringify(data));
+  }, [data]);
+
+
   return (<div>
     <div style={{ position: "absolute", zIndex: 2, bottom: 30 }}>
       <Controls
@@ -77,6 +130,7 @@ function Map() {
         mapboxApiAccessToken={MAPBOX_TOKEN}
         onViewportChange={nextViewport => setViewport(nextViewport)}
       >
+        {data.length && <Ships data={data} viewState={viewport} />}
         {markers.map(marker => {
           const text = `lat: ${marker.latitude.toFixed(5)}, lng: ${marker.longitude.toFixed(5)}`;
           return (<>
