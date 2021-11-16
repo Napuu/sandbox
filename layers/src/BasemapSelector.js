@@ -1,7 +1,7 @@
 import { Button, Paper, Box } from '@material-ui/core';
 import { useEffect, useRef, useState } from 'react';
 import { useDebounce } from "./hooks";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 export const basemaps = [
   { title: "Streets", url: "mapbox://styles/mapbox/streets-v11", icon: "mapbox/streets-v11" },
@@ -59,6 +59,8 @@ export default function ({ setBasemap, viewport, mapboxApiAccessToken }) {
     }));
   }, [justLoaded, debouncedViewport, basemapCanvasRefs, mapboxApiAccessToken]);
 
+  const location = useLocation();
+
   return (
     <Box p={1}>
       <Paper>
@@ -66,7 +68,8 @@ export default function ({ setBasemap, viewport, mapboxApiAccessToken }) {
           {basemaps.map((basemap, i) => (
             <Button key={i} onClick={() => {
               setBasemap(basemap.url);
-              navigate(`/${basemap.title.toLowerCase()}`);
+              const rest = location.pathname.split("/").slice(2).join("/");
+              navigate(`/${basemap.title.toLowerCase()}/${rest}`);
             }}>
               <canvas style={{"border": "1px solid rgba(0, 0, 0, 0.5)", borderRadius: 5}} ref={basemapCanvasRefs[i]} width={50} height={50} />
             </Button>
