@@ -57,16 +57,17 @@ export default function Layer({ data, viewState }) {
     getPath: d => d.waypoints.map(p => p.coordinates),
     // deduct start timestamp from each data point to avoid overflow
     getTimestamps: d => d.waypoints.map(p => p.timestamp),
-    getColor: [253, 128, 93],
-    opacity: 0.8,
+    getColor: [92, 181, 249],
+    opacity: 0.2,
     widthMinPixels: 5,
     rounded: true,
     fadeTrail: true,
-    trailLength: animationSpeed * 150,
+    getWidth: d => 5,
+    trailLength: animationSpeed * 150 * 5,
     currentTime: time,
 
     shadowEnabled: false
   });
 
-  return <DeckGL viewState={viewState} layers={[layer]} />;
+  return <DeckGL useDevicePixels={true} viewState={viewState} layers={[layer]} />;
 };

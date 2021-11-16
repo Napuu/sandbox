@@ -12,9 +12,24 @@ import CloseIcon from '@mui/icons-material/Close';
 import Ships from "./experiments/Ships";
 import polyline from "@mapbox/polyline";
 import _ from "lodash";
+import {
+  Routes,
+  Route,
+  useLocation,
+} from "react-router-dom";
 
 const MAPBOX_TOKEN = process.env.REACT_APP_MAPBOX_TOKEN;
 function Map() {
+  const location = useLocation();
+  useEffect(() => {
+    const index = basemaps.findIndex(b => b.title.toLocaleLowerCase() === location.pathname.split("/")[1]);
+    if (index === -1) {
+      setBaseMap(basemaps[1].url);
+    } else {
+      setBaseMap(basemaps[index].url);
+    }
+  }, [location.pathname]);
+
   const [viewport, setViewport] = useState({
     width: window.innerWidth,
     height: window.innerHeight,
@@ -72,7 +87,7 @@ function Map() {
         }
     ]);
     (async () => {
-      const fetched = await fetch("ships");
+      const fetched = await fetch("/ships");
       const lines = (await fetched.text()).split("\n");
       const d = lines.filter(line => line).map((line) => {
         const parsed = JSON.parse(line);
@@ -84,31 +99,10 @@ function Map() {
         };
       });
       setData(d);
-      // const json = await fetched.json();
-      // console.log(json);
-      // take five first features from a list
-      // const features = json.features.slice(0, 5);
-
-      /*
-      const newData = {
-        waypoints: json.features.map(feature => ({
-          coordinates: feature.geometry.coordinates,
-          timestamp: feature.properties.timestampExternal
-        }))
-      };
-      */
-      // setData([newData]);
     })();
   }, []);
 
-
   const [data, setData] = useState([]);
-
-  useEffect(() => {
-    console.log("??", data);
-    console.log("??", JSON.stringify(data));
-  }, [data]);
-
 
   return (<div>
     <div style={{ position: "absolute", zIndex: 2, bottom: 30 }}>
@@ -130,7 +124,9 @@ function Map() {
         mapboxApiAccessToken={MAPBOX_TOKEN}
         onViewportChange={nextViewport => setViewport(nextViewport)}
       >
-        {data.length && <Ships data={data} viewState={viewport} />}
+        <Routes>
+        <Route path="/:basemap/ships" element={<Ships data={data} viewState={viewport} />} />
+        </Routes>
         {markers.map(marker => {
           const text = `lat: ${marker.latitude.toFixed(5)}, lng: ${marker.longitude.toFixed(5)}`;
           return (<>
