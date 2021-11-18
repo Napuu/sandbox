@@ -34,7 +34,7 @@ jobs:
 
 
     - name: Add CNAME
-      run: echo "hiekkalaatikko.kartalla.dev" > layers/build/CNAME
+      run: echo "kartalla.dev" > layers/build/CNAME
 
     - name: Deploy
       uses: peaceiris/actions-gh-pages@v3
