@@ -10,8 +10,6 @@ import { Box, IconButton, Typography } from '@material-ui/core';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import CloseIcon from '@mui/icons-material/Close';
 import Ships from "./experiments/Ships";
-import polyline from "@mapbox/polyline";
-import _ from "lodash";
 import {
   Routes,
   Route,
@@ -76,34 +74,6 @@ function Map() {
     setMarkers(markers.map(m => (m.id === id ? { ...m, popup: true } : m)));
   };
 
-  useEffect(() => {
-    setData([
-        {
-          waypoints: [
-          {coordinates: [24, 61], timestamp: 1636840097955 },
-          {coordinates: [25,62], timestamp: 1636840097955 },
-          {coordinates: [25, 63], timestamp: 1636840097975 }
-          ]
-        }
-    ]);
-    (async () => {
-      const fetched = await fetch("/ships");
-      const lines = (await fetched.text()).split("\n");
-      const d = lines.filter(line => line).map((line) => {
-        const parsed = JSON.parse(line);
-        return {waypoints: 
-          _.zip(polyline.decode(parsed[0]), parsed[1]).map(line => ({
-            coordinates: line[0],
-            timestamp: line[1]
-          })) 
-        };
-      });
-      setData(d);
-    })();
-  }, []);
-
-  const [data, setData] = useState([]);
-
   return (<div>
     <div style={{ position: "absolute", zIndex: 2, bottom: 30 }}>
       <Controls
@@ -125,7 +95,7 @@ function Map() {
         onViewportChange={nextViewport => setViewport(nextViewport)}
       >
         <Routes>
-        <Route path="/:basemap/ships" element={<Ships data={data} viewState={viewport} />} />
+        <Route path="/:basemap/ships" element={<Ships viewState={viewport} />} />
         </Routes>
         {markers.map(marker => {
           const text = `lat: ${marker.latitude.toFixed(5)}, lng: ${marker.longitude.toFixed(5)}`;

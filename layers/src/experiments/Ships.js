@@ -1,29 +1,47 @@
 import { TripsLayer } from '@deck.gl/geo-layers';
 import DeckGL from '@deck.gl/react';
 import { useEffect, useState, useCallback } from 'react';
-export default function Layer({ data, viewState }) {
-  /**
-   * Data format:
-   * [
-   *   {
-   *     waypoints: [
-   *      {coordinates: [-122.3907988, 37.7664413], timestamp: 1554772579000}
-   *      {coordinates: [-122.3908298,37.7667706], timestamp: 1554772579010}
-   *       ...,
-   *      {coordinates: [-122.4485672, 37.8040182], timestamp: 1554772580200}
-   *     ]
-   *   }
-   * ]
-   */
-  // const te
-  const animationSpeed = 86400000 / 1500;
+import _ from "lodash";
+import polyline from "@mapbox/polyline";
+
+export default function Layer({ viewState }) {
+  const [divider, setDivider] = useState(3600 * 1000 * 24); // default to 24h
+  const animationSpeed = 3600 * 1000 * 24 / 1500; // 24h has 1500 steps, total ~25s
   const [time, setTime] = useState(0);
   const [animation] = useState({});
 
   const animate = useCallback(() => {
-    setTime(t => (t + animationSpeed) % 86400000);
+    setTime(t => (t + animationSpeed) % divider);
     animation.id = window.requestAnimationFrame(animate);
-  }, [animation, animationSpeed]);
+  }, [animation, animationSpeed, divider]);
+
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    setData([
+        {
+          waypoints: [
+          {coordinates: [24, 61], timestamp: 1636840097955 },
+          {coordinates: [25,62], timestamp: 1636840097955 },
+          {coordinates: [25, 63], timestamp: 1636840097975 }
+          ]
+        }
+    ]);
+    (async () => {
+      const fetched = await fetch("/ships");
+      const lines = (await fetched.text()).split("\n");
+      const d = lines.filter(line => line).map((line) => {
+        const parsed = JSON.parse(line);
+        return {waypoints: 
+          _.zip(polyline.decode(parsed[0]), parsed[1]).map(line => ({
+            coordinates: line[0],
+            timestamp: line[1]
+          })) 
+        };
+      });
+      setData(d);
+    })();
+  }, []);
 
   useEffect(
     () => {
@@ -36,20 +54,18 @@ export default function Layer({ data, viewState }) {
   useEffect(() => {
     if (data.length === 0) return;
     // get maximum timestamp from data
-    /*
     let min = Infinity;
     let max = 0;
-    data[0].waypoints.forEach(list => {
+    data.forEach(d => d.waypoints.forEach(list => {
       if (list.timestamp > max) {
         max = list.timestamp;
       }
       if (list.timestamp < min) {
         min = list.timestamp;
       }
-    });
+    }));
     // get minimum timestamp from data
-    console.log(min, max, max - min);
-    */
+    setDivider(max - min);
   }, [data]);
   const layer = new TripsLayer({
     id: 'trips-layer',
@@ -69,5 +85,5 @@ export default function Layer({ data, viewState }) {
     shadowEnabled: false
   });
 
-  return <DeckGL useDevicePixels={true} viewState={viewState} layers={[layer]} />;
+  return <DeckGL useDevicePixels={false} viewState={viewState} layers={[layer]} />;
 };
