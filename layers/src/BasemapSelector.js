@@ -1,5 +1,5 @@
 import { Button, Paper, Box } from '@material-ui/core';
-import { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useDebounce } from "./hooks";
 import { useNavigate, useLocation } from "react-router-dom";
 
