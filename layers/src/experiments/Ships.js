@@ -18,15 +18,6 @@ export default function Layer({ viewState }) {
   const [data, setData] = useState([]);
 
   useEffect(() => {
-    setData([
-        {
-          waypoints: [
-          {coordinates: [24, 61], timestamp: 1636840097955 },
-          {coordinates: [25,62], timestamp: 1636840097955 },
-          {coordinates: [25, 63], timestamp: 1636840097975 }
-          ]
-        }
-    ]);
     (async () => {
       const fetched = await fetch("/ships");
       const lines = (await fetched.text()).split("\n");

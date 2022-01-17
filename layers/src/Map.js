@@ -10,11 +10,7 @@ import { Box, IconButton, Typography } from '@material-ui/core';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import CloseIcon from '@mui/icons-material/Close';
 import Ships from "./experiments/Ships";
-import {
-  Routes,
-  Route,
-  useLocation,
-} from "react-router-dom";
+import { useLocation } from "react-router-dom";
 
 const MAPBOX_TOKEN = process.env.REACT_APP_MAPBOX_TOKEN;
 function Map() {
@@ -67,6 +63,8 @@ function Map() {
     setMarkers(markers.map(m => (m.id === id ? { ...m, latitude: ev.lngLat[1], longitude: ev.lngLat[0] } : m)));
   };
 
+  const [experiments, setExperiments] = useState({});
+
   useEffect(() => {
     console.log(markers);
   }, [markers]);
@@ -75,7 +73,7 @@ function Map() {
   };
 
   return (<div>
-    <div style={{ position: "absolute", zIndex: 2, bottom: 30 }}>
+    <div style={{ position: "absolute", zIndex: 2, bottom: 30, left: 20 }}>
       <Controls
         viewport={viewport}
         basemap={basemap}
@@ -83,6 +81,8 @@ function Map() {
         setBasemap={setBaseMap}
         setAddingLocations={setAddingLocations}
         addingLocations={addingLocations}
+        experiments={experiments}
+        setExperiments={setExperiments}
       />
     </div>
     <div style={{ position: 'absolute', top: 0, left: 0 }}>
@@ -94,9 +94,7 @@ function Map() {
         mapboxApiAccessToken={MAPBOX_TOKEN}
         onViewportChange={nextViewport => setViewport(nextViewport)}
       >
-        <Routes>
-        <Route path="/:basemap/ships" element={<Ships viewState={viewport} />} />
-        </Routes>
+        {experiments["ships"] && <Ships viewState={viewport} /> }
         {markers.map(marker => {
           const text = `lat: ${marker.latitude.toFixed(5)}, lng: ${marker.longitude.toFixed(5)}`;
           return (<>

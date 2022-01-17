@@ -14,7 +14,7 @@ export const basemaps = [
 // eslint-disable-next-line
 export default function ({ setBasemap, viewport, mapboxApiAccessToken }) {
 
-  const debouncedViewport = useDebounce(viewport, 1000);
+  const debouncedViewport = useDebounce(viewport, 5000);
   const basemapCanvasRefs = basemaps.map(basemap => useRef(null));
 
   const [justLoaded, setJustLoaded] = useState(false);
